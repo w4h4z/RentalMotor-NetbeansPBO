@@ -56,6 +56,12 @@ public class Login extends javax.swing.JFrame {
         jLabel2.setBounds(110, 80, 100, 40);
         getContentPane().add(txtPassword);
         txtPassword.setBounds(190, 130, 120, 30);
+
+        txtUsername.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtUsernameActionPerformed(evt);
+            }
+        });
         getContentPane().add(txtUsername);
         txtUsername.setBounds(190, 90, 120, 30);
 
@@ -114,8 +120,9 @@ public class Login extends javax.swing.JFrame {
             ps.setString(1,txtUsername.getText());
             ps.setString(2,txtPassword.getText());
             ResultSet result = ps.executeQuery();
+            String nama = txtUsername.getText();
             if(result.next()){
-                new frmMain().show();
+                new frmMain(nama).show();
                 this.dispose();
             } else {
                 JOptionPane.showMessageDialog(rootPane, "Salah!");
@@ -126,6 +133,10 @@ public class Login extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(rootPane,"Gagal");
             }
     }//GEN-LAST:event_btnSinActionPerformed
+
+    private void txtUsernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUsernameActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtUsernameActionPerformed
 
     /**
      * @param args the command line arguments

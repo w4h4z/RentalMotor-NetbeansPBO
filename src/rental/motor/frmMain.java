@@ -5,6 +5,9 @@
  */
 package rental.motor;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
@@ -25,9 +28,11 @@ public class frmMain extends javax.swing.JFrame {
     /**
      * Creates new form frmMain
      */
-    public frmMain() {
+    public frmMain(String nama) {
         initComponents();
         selectedData();
+        
+        txtNama.setText(nama);
     }
 
     /**
@@ -56,15 +61,26 @@ public class frmMain extends javax.swing.JFrame {
         btnPrint = new javax.swing.JButton();
         btnSave = new javax.swing.JButton();
         btnClear = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        tblData = new javax.swing.JTable();
         btnDelete = new javax.swing.JButton();
         txtNoPol = new javax.swing.JTextField();
         jPanel1 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblData = new javax.swing.JTable();
+        jDateChooserCk = new com.toedter.calendar.JDateChooser();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        jDateChooserCm = new com.toedter.calendar.JDateChooser();
+        search = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(null);
+
+        txtNama.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtNamaActionPerformed(evt);
+            }
+        });
         getContentPane().add(txtNama);
         txtNama.setBounds(110, 140, 150, 30);
         getContentPane().add(txtAlamat);
@@ -74,6 +90,11 @@ public class frmMain extends javax.swing.JFrame {
 
         harga.setText("Rp20000/Hari");
         harga.setEnabled(false);
+        harga.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                hargaActionPerformed(evt);
+            }
+        });
         getContentPane().add(harga);
         harga.setBounds(650, 220, 150, 30);
 
@@ -142,22 +163,6 @@ public class frmMain extends javax.swing.JFrame {
         getContentPane().add(btnClear);
         btnClear.setBounds(200, 230, 73, 30);
 
-        tblData.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null}
-            },
-            new String [] {
-                "id", "Nama", "Alamat", "No Struk", "No Polisi", "Tgl Pinjam", "Tgl Kembali", "Harga"
-            }
-        ));
-        jScrollPane1.setViewportView(tblData);
-
-        getContentPane().add(jScrollPane1);
-        jScrollPane1.setBounds(100, 270, 700, 240);
-
         btnDelete.setText("Delete");
         btnDelete.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -171,14 +176,53 @@ public class frmMain extends javax.swing.JFrame {
 
         jPanel1.setBackground(new java.awt.Color(51, 204, 255));
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Form Rental Sepeda Motor", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Exo 2", 0, 14))); // NOI18N
+        jPanel1.setLayout(null);
+
+        tblData.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "id", "Nama", "Alamat", "No Struk", "No Polisi", "Tgl Pinjam", "Tgl Kembali", "Harga"
+            }
+        ));
+        jScrollPane1.setViewportView(tblData);
+
+        jPanel1.add(jScrollPane1);
+        jScrollPane1.setBounds(100, 220, 700, 240);
+        jPanel1.add(jDateChooserCk);
+        jDateChooserCk.setBounds(480, 180, 190, 30);
+
+        jLabel8.setText("Tanggal Keluar");
+        jPanel1.add(jLabel8);
+        jLabel8.setBounds(390, 180, 90, 30);
+
+        jLabel10.setText("Tanggal Masuk");
+        jPanel1.add(jLabel10);
+        jLabel10.setBounds(100, 180, 90, 30);
+        jPanel1.add(jDateChooserCm);
+        jDateChooserCm.setBounds(190, 180, 190, 30);
+
+        search.setText("Search");
+        search.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchActionPerformed(evt);
+            }
+        });
+        jPanel1.add(search);
+        search.setBounds(700, 180, 100, 30);
+
         getContentPane().add(jPanel1);
-        jPanel1.setBounds(0, 100, 860, 440);
+        jPanel1.setBounds(0, 100, 860, 500);
 
         jPanel2.setBackground(new java.awt.Color(43, 101, 248));
         getContentPane().add(jPanel2);
         jPanel2.setBounds(0, 0, 860, 110);
 
-        setSize(new java.awt.Dimension(875, 569));
+        setSize(new java.awt.Dimension(875, 636));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
@@ -211,7 +255,7 @@ public class frmMain extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this,"Harap Lengkapi Data","Error",JOptionPane.WARNING_MESSAGE);
         }else {
             String SQL = "INSERT INTO tb_rental(nama,alamat,no_struk,no_pol,tgl_pinjam,tgl_kembali,harga)"
-                    +"VALUES('"+txtNama.getText()+"','"+txtAlamat.getText()+"','"+txtStruk.getText()+"','"+harga.getText()+"','"+tanggalP+"',"
+                    +"VALUES('"+txtNama.getText()+"','"+txtAlamat.getText()+"','"+txtStruk.getText()+"','"+txtNoPol.getText()+"','"+tanggalP+"',"
                     +"'"+tanggalK+"','"+hargatotal+"')";
             
             int status = KoneksiDB.execute(SQL);
@@ -252,6 +296,53 @@ public class frmMain extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnDeleteActionPerformed
 
+    private void hargaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hargaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_hargaActionPerformed
+
+    private void txtNamaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNamaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtNamaActionPerformed
+
+    private void searchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchActionPerformed
+        // TODO add your handling code here:
+        PreparedStatement ps;
+        Connection connection;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String tanggalCp = dateFormat.format(jDateChooserCm.getDate());
+        String tanggalCk = dateFormat.format(jDateChooserCk.getDate());
+
+        try{
+        connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/db_rentalmotor?zeroDateTimeBehavior=convertToNull","root","");
+        String kolom[] = {"id","nama","alamat","no_struk","no_pol","tgl_pinjam","tgl_kembali","harga"};
+        DefaultTableModel dtm = new DefaultTableModel(null, kolom);
+        ps = connection.prepareStatement("SELECT `id`,`nama`, `alamat`, `no_struk`, `no_pol`, `tgl_pinjam`, `tgl_kembali`, `harga` FROM `tb_rental` WHERE tgl_pinjam = ? AND tgl_kembali = ?");
+        ps.setString(1,tanggalCp);
+        ps.setString(2,tanggalCk);
+        ResultSet rs = ps.executeQuery();
+        try{
+            while(rs.next()){
+                String id = rs.getString(1);
+                String nama = rs.getString(2);
+                String alamat = rs.getString(3);
+                String no_struk = rs.getString(4);
+                String no_pol = rs.getString(5);
+                String tgl_pinjam = rs.getString(6);
+                String tgl_kembali = rs.getString(7);
+                String harga = rs.getString(8);
+                String data[] = {id,nama,alamat,no_struk,no_pol,tgl_pinjam,tgl_kembali,harga};
+                dtm.addRow(data);
+                
+            }
+        } catch (SQLException ex){
+            Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE,null,ex);
+        }        tblData.setModel(dtm);
+            } catch (SQLException ex){
+                JOptionPane.showMessageDialog(rootPane,"Gagal");
+            }
+
+    }//GEN-LAST:event_searchActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -282,7 +373,7 @@ public class frmMain extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new frmMain().setVisible(true);
+
             }
         });
     }
@@ -293,19 +384,24 @@ public class frmMain extends javax.swing.JFrame {
     private javax.swing.JButton btnPrint;
     private javax.swing.JButton btnSave;
     private javax.swing.JTextField harga;
+    private com.toedter.calendar.JDateChooser jDateChooserCk;
+    private com.toedter.calendar.JDateChooser jDateChooserCm;
     private com.toedter.calendar.JDateChooser jDateChooserK;
     private com.toedter.calendar.JDateChooser jDateChooserP;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JButton search;
     private javax.swing.JTable tblData;
     private javax.swing.JTextField txtAlamat;
     private javax.swing.JTextField txtNama;
